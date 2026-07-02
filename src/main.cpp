@@ -105,7 +105,7 @@ int main() {
         }
 
         if (cmd == "echo") {
-            auto rest = trimmed_input.substr(trimmed_input.find("echo") + 4);
+            auto rest = ltrim(trimmed_input.substr(trimmed_input.find("echo") + 4));
             std::println("{}", rest);
         } else if (cmd == "type") {
             auto program_name = parts.at(1);
