@@ -1,8 +1,12 @@
+#include <cstdlib>
 #include <cwctype>
 #include <iostream>
 #include <print>
+#include <sstream>
 #include <string>
+#include <unistd.h>
 #include <unordered_set>
+#include <vector>
 
 std::string ltrim(const std::string& str) {
     auto start = str.find_first_not_of(" \t\n\r\f\v");
@@ -12,6 +16,25 @@ std::string ltrim(const std::string& str) {
     }
 
     return str.substr(start);
+}
+
+bool is_executable(const std::string& str) { return access(str.c_str(), X_OK) == 0; }
+
+std::vector<std::string> get_path_directories() {
+    auto dirs = std::vector<std::string>();
+    const char* path = std::getenv("PATH");
+    if (path == nullptr) {
+        return dirs;
+    }
+
+    std::stringstream ss(path);
+    std::string dir;
+
+    while (std::getline(ss, dir, ':')) {
+        dirs.push_back(dir);
+    }
+
+    return dirs;
 }
 
 int main() {
@@ -51,7 +74,19 @@ int main() {
             if (shell_builtin_commands.contains(rest)) {
                 std::println("{} is a shell builtin", rest);
             } else {
-                std::println("{}: not found", rest);
+                auto dirs = get_path_directories();
+                bool found = false;
+                for (auto& dir : dirs) {
+                    std::string candidate = dir + "/" + rest;
+                    if (is_executable(candidate)) {
+                        std::println("{} is {}", rest, candidate);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    std::println("{}: not found", rest);
+                }
             }
         } else {
             std::println("{}: command not found", cmd);
