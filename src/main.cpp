@@ -1,9 +1,11 @@
 #include <cstdlib>
 #include <cwctype>
 #include <iostream>
+#include <optional>
 #include <print>
 #include <sstream>
 #include <string>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <unordered_set>
 #include <vector>
@@ -18,7 +20,17 @@ std::string ltrim(const std::string& str) {
     return str.substr(start);
 }
 
-bool is_executable(const std::string& str) { return access(str.c_str(), X_OK) == 0; }
+std::vector<std::string> split(const std::string& input) {
+    std::stringstream ss(input);
+    std::vector<std::string> parts;
+    std::string word;
+
+    while (ss >> word) {
+        parts.push_back(word);
+    }
+
+    return parts;
+}
 
 std::vector<std::string> get_path_directories() {
     auto dirs = std::vector<std::string>();
@@ -37,6 +49,36 @@ std::vector<std::string> get_path_directories() {
     return dirs;
 }
 
+std::optional<std::string> find_executable(const std::string& command) {
+    for (const auto& dir : get_path_directories()) {
+        std::string candidate = dir + "/" + command;
+
+        if (access(candidate.c_str(), X_OK) == 0) {
+            return candidate;
+        }
+    }
+
+    return std::nullopt;
+}
+
+void run_executable(const std::string& path, const std::vector<std::string>& args) {
+    std::vector<char*> argv;
+    for (const auto& arg : args) {
+        argv.push_back(const_cast<char*>(arg.c_str()));
+    }
+
+    argv.push_back(nullptr);
+
+    pid_t pid = fork();
+
+    if (pid == 0) {
+        execv(path.c_str(), argv.data());
+        std::exit(1);
+    }
+
+    waitpid(pid, nullptr, 0);
+}
+
 int main() {
 
     const auto shell_builtin_commands = std::unordered_set<std::string>{"exit", "echo", "type"};
@@ -46,50 +88,45 @@ int main() {
         std::string input;
         std::getline(std::cin, input);
 
-        auto trimmed_cmd = ltrim(input);
+        auto trimmed_input = ltrim(input);
 
-        if (trimmed_cmd.empty()) {
+        if (trimmed_input.empty()) {
             continue;
         }
 
         auto whitespace_pos = input.find_first_of(" \t\n\r\f\v");
 
-        std::string cmd;
-        std::string rest;
+        auto parts = split(trimmed_input);
 
-        if (whitespace_pos != std::string::npos) {
-            cmd = trimmed_cmd.substr(0, whitespace_pos);
-            rest = trimmed_cmd.substr(whitespace_pos + 1);
-        } else {
-            cmd = trimmed_cmd;
-        }
+        auto cmd = parts.at(0);
 
         if (cmd == "exit") {
             break;
         }
 
         if (cmd == "echo") {
+            auto rest = trimmed_input.substr(trimmed_input.find("echo") + 1);
             std::println("{}", rest);
         } else if (cmd == "type") {
-            if (shell_builtin_commands.contains(rest)) {
-                std::println("{} is a shell builtin", rest);
+            auto program_name = parts.at(1);
+            if (shell_builtin_commands.contains(program_name)) {
+                std::println("{} is a shell builtin", program_name);
             } else {
-                auto dirs = get_path_directories();
-                bool found = false;
-                for (auto& dir : dirs) {
-                    std::string candidate = dir + "/" + rest;
-                    if (is_executable(candidate)) {
-                        std::println("{} is {}", rest, candidate);
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    std::println("{}: not found", rest);
+                auto path = find_executable(program_name);
+                if (path.has_value()) {
+                    std::println("{} is {}", program_name, path.value());
+                } else {
+                    std::println("{}: not found", program_name);
                 }
             }
         } else {
-            std::println("{}: command not found", cmd);
+            auto program = find_executable(cmd);
+            if (program.has_value()) {
+                auto args = std::vector<std::string>(parts.begin() + 1, parts.end());
+                run_executable(cmd, args);
+            } else {
+                std::println("{}: command not found", cmd);
+            }
         }
     }
 }
