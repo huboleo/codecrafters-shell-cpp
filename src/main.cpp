@@ -51,7 +51,7 @@ int main() {
             if (shell_builtin_commands.contains(rest)) {
                 std::println("{} is a shell builtin", rest);
             } else {
-                std::println("{}: invalid command", rest);
+                std::println("{}: command not found", rest);
             }
         } else {
             std::println("{}: command not found", cmd);
