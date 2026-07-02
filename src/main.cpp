@@ -1,14 +1,17 @@
-#include <string>
-#include <print>
 #include <iostream>
+#include <print>
+#include <string>
 
 int main() {
-    bool shouldRun = true;
-    while (shouldRun) {
+    while (true) {
         std::print("$ ");
-        std::string command;
-        std::getline(std::cin, command);
-        std::println("{}: command not found", command);    
+        std::string input;
+        std::getline(std::cin, input);
+
+        if (input == "exit") {
+            break;
+        }
+
+        std::println("{}: command not found", input);
     }
-    
 }
