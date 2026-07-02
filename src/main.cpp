@@ -12,6 +12,11 @@ int main() {
             break;
         }
 
+        if (input.substr(0, 5) == "echo ") {
+            std::println("{}", input.substr(5));
+            continue;
+        }
+
         std::println("{}: command not found", input);
     }
 }
