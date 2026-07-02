@@ -1,52 +1,60 @@
+#include <cwctype>
 #include <iostream>
 #include <print>
-#include <sstream>
 #include <string>
 #include <unordered_set>
-#include <vector>
 
-std::vector<std::string> split(const std::string& input) {
-    std::stringstream ss(input);
-    std::string word;
-    std::vector<std::string> parts;
+std::string ltrim(const std::string& str) {
+    auto start = str.find_first_not_of(" \t\n\r\f\v");
 
-    while (ss >> word) {
-        parts.push_back(word);
+    if (start == std::string::npos) {
+        return "";
     }
 
-    return parts;
+    return str.substr(start);
 }
 
 int main() {
 
-    const auto shell_builtin_commands = std::unordered_set<std::string>{"exit", "echo"};
+    const auto shell_builtin_commands = std::unordered_set<std::string>{"exit", "echo", "type"};
 
     while (true) {
         std::print("$ ");
         std::string input;
         std::getline(std::cin, input);
 
-        const auto parts = split(input);
+        auto trimmed_cmd = ltrim(input);
 
-        if (parts.empty()) {
+        if (trimmed_cmd.empty()) {
             continue;
         }
 
-        const auto cmd = parts.at(0);
+        auto whitespace_pos = input.find_first_of(" \t\n\r\f\v");
+
+        std::string cmd;
+        std::string rest;
+
+        if (whitespace_pos != std::string::npos) {
+            cmd = trimmed_cmd.substr(0, whitespace_pos);
+            rest = trimmed_cmd.substr(whitespace_pos + 1);
+        } else {
+            cmd = trimmed_cmd;
+        }
 
         if (cmd == "exit") {
             break;
+        }
+
+        if (cmd == "echo") {
+            std::println("{}", rest);
         } else if (cmd == "type") {
-            if (shell_builtin_commands.contains(parts.at(1))) {
-                std::println("{} is a shell builtin", parts.at(1));
+            if (shell_builtin_commands.contains(rest)) {
+                std::println("{} is a shell builtin", rest);
             } else {
-                std::println("{} invalid_command", parts.at(1));
+                std::println("{}: invalid command", rest);
             }
-        } else if (input.substr(0, 5) == "echo ") {
-            std::println("{}", input.substr(5));
-            continue;
         } else {
-            std::println("{}: command not found", input);
+            std::println("{}: command not found", cmd);
         }
     }
 }
