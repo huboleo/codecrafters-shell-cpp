@@ -63,7 +63,6 @@ std::optional<std::string> find_executable(const std::string& command) {
 
 void run_executable(const std::string& path, const std::vector<std::string>& args) {
     std::vector<char*> argv;
-    argv.push_back(const_cast<char*>(path.c_str()));
     for (const auto& arg : args) {
         argv.push_back(const_cast<char*>(arg.c_str()));
     }
@@ -123,8 +122,7 @@ int main() {
         } else {
             auto program = find_executable(cmd);
             if (program.has_value()) {
-                auto args = std::vector<std::string>(parts.begin() + 1, parts.end());
-                run_executable(cmd, args);
+                run_executable(program.value(), parts);
             } else {
                 std::println("{}: command not found", cmd);
             }
