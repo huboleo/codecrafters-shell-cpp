@@ -25,7 +25,7 @@ int main() {
 
         auto whitespace_pos = input.find_first_of(" \t\n\r\f\v");
 
-        auto parts = string_utils::split(trimmed_input);
+        auto parts = string_utils::split_command(trimmed_input);
 
         auto cmd = parts.at(0);
 
@@ -34,8 +34,11 @@ int main() {
         }
 
         if (cmd == "echo") {
-            auto rest = string_utils::ltrim(trimmed_input.substr(trimmed_input.find("echo") + 4));
-            std::println("{}", rest);
+            if (parts.size() < 2) {
+                std::println();
+                continue;
+            }
+            std::println("{}", parts.at(1));
         } else if (cmd == "type") {
             auto program_name = parts.at(1);
             if (shell_builtin_commands.contains(program_name)) {
