@@ -9,7 +9,8 @@
 
 int main() {
 
-    const auto shell_builtin_commands = std::unordered_set<std::string>{"exit", "echo", "type"};
+    const auto shell_builtin_commands =
+        std::unordered_set<std::string>{"exit", "echo", "type", "pwd"};
 
     while (true) {
         std::print("$ ");
