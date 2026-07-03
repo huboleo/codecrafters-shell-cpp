@@ -4,8 +4,15 @@
 #include <iostream>
 #include <print>
 #include <string>
+#include <unistd.h>
 #include <unordered_set>
 #include <vector>
+
+void cd(const std::string& path) {
+    if (chdir(path.c_str()) != 0) {
+        std::println("cd: {}: No such file or directory", path);
+    }
+}
 
 int main() {
 
@@ -50,6 +57,11 @@ int main() {
             }
         } else if (cmd == "pwd") {
             std::println("{}", std::filesystem::current_path().string());
+        } else if (cmd == "cd") {
+            if (parts.size() < 2) {
+                continue;
+            }
+            cd(parts.at(1));
         } else {
             auto program = executables::find_executable(cmd);
             if (program.has_value()) {
