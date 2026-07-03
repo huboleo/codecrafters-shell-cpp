@@ -34,11 +34,13 @@ int main() {
         }
 
         if (cmd == "echo") {
-            if (parts.size() < 2) {
-                std::println();
-                continue;
+            for (size_t i = 1; i < parts.size(); i++) {
+                if (i > 1) {
+                    std::print(" ");
+                }
+                std::print("{}", parts.at(i));
             }
-            std::println("{}", parts.at(1));
+            std::println();
         } else if (cmd == "type") {
             auto program_name = parts.at(1);
             if (shell_builtin_commands.contains(program_name)) {

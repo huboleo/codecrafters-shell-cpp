@@ -31,13 +31,10 @@ std::vector<std::string> string_utils::split_command(const std::string& input) {
     std::string current;
 
     bool in_single_quotes = false;
-    bool in_double_quotes = false;
 
     for (char character : input) {
-        if (character == '\'' && !in_double_quotes) {
+        if (character == '\'') {
             in_single_quotes = !in_single_quotes;
-        } else if (character == '\"' && !in_single_quotes) {
-            in_double_quotes = !in_double_quotes;
         } else if (std::isspace(static_cast<unsigned char>(character)) && !in_single_quotes) {
             if (!current.empty()) {
                 parts.push_back(current);
