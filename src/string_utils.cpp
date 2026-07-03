@@ -32,8 +32,21 @@ std::vector<std::string> string_utils::split_command(const std::string& input) {
 
     bool in_single_quotes = false;
     bool in_double_quotes = false;
+    bool is_escape = false;
 
     for (char character : input) {
+
+        if (is_escape) {
+            current.push_back(character);
+            is_escape = false;
+            continue;
+        }
+
+        if (character == '\\' && !in_single_quotes) {
+            is_escape = true;
+            continue;
+        }
+
         if (character == '\'' && !in_double_quotes) {
             in_single_quotes = !in_single_quotes;
         } else if (character == '\"' && !in_single_quotes) {
