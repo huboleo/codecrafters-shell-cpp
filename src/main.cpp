@@ -1,18 +1,11 @@
-#include "executables.hpp"
+#include "fs_utils.hpp"
 #include "string_utils.hpp"
 #include <filesystem>
 #include <iostream>
+#include <optional>
 #include <print>
 #include <string>
-#include <unistd.h>
 #include <unordered_set>
-#include <vector>
-
-void cd(const std::string& path) {
-    if (chdir(path.c_str()) != 0) {
-        std::println("cd: {}: No such file or directory", path);
-    }
-}
 
 int main() {
 
@@ -48,7 +41,7 @@ int main() {
             if (shell_builtin_commands.contains(program_name)) {
                 std::println("{} is a shell builtin", program_name);
             } else {
-                auto path = executables::find_executable(program_name);
+                auto path = fs_utils::find_executable(program_name);
                 if (path.has_value()) {
                     std::println("{} is {}", program_name, path.value());
                 } else {
@@ -61,11 +54,21 @@ int main() {
             if (parts.size() < 2) {
                 continue;
             }
-            cd(parts.at(1));
+            if (parts.at(1).starts_with("~")) {
+                auto home_dir = fs_utils::resolve_home_directory();
+                if (home_dir.has_value()) {
+                    fs_utils::cd(home_dir.value());
+                }
+            } else {
+                if (!fs_utils::cd(parts.at(1))) {
+                    std::println("cd: {}: No such file or directory", parts.at(1));
+                }
+            }
+
         } else {
-            auto program = executables::find_executable(cmd);
+            auto program = fs_utils::find_executable(cmd);
             if (program.has_value()) {
-                executables::run_executable(program.value(), parts);
+                fs_utils::executables::run_executable(program.value(), parts);
             } else {
                 std::println("{}: command not found", cmd);
             }

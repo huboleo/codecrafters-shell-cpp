@@ -1,4 +1,4 @@
-#pragma once
+#include "fs_utils.hpp"
 #include <cstdlib>
 #include <cwctype>
 #include <optional>
@@ -8,8 +8,7 @@
 #include <unistd.h>
 #include <vector>
 
-namespace executables {
-inline std::vector<std::string> get_path_directories() {
+std::vector<std::string> fs_utils::get_path_directories() {
     auto dirs = std::vector<std::string>();
     const char* path = std::getenv("PATH");
     if (path == nullptr) {
@@ -26,7 +25,7 @@ inline std::vector<std::string> get_path_directories() {
     return dirs;
 }
 
-inline std::optional<std::string> find_executable(const std::string& command) {
+std::optional<std::string> fs_utils::find_executable(const std::string& command) {
     for (const auto& dir : get_path_directories()) {
         std::string candidate = dir + "/" + command;
 
@@ -38,7 +37,18 @@ inline std::optional<std::string> find_executable(const std::string& command) {
     return std::nullopt;
 }
 
-inline void run_executable(const std::string& path, const std::vector<std::string>& args) {
+bool fs_utils::cd(const std::string& path) { return chdir(path.c_str()) == 0; }
+
+std::optional<std::string> fs_utils::resolve_home_directory() {
+    const char* home = std::getenv("HOME");
+    if (home == nullptr) {
+        return std::nullopt;
+    }
+    return std::string(home);
+}
+
+void fs_utils::executables::run_executable(const std::string& path,
+                                           const std::vector<std::string>& args) {
     std::vector<char*> argv;
     for (const auto& arg : args) {
         argv.push_back(const_cast<char*>(arg.c_str()));
@@ -55,5 +65,3 @@ inline void run_executable(const std::string& path, const std::vector<std::strin
 
     waitpid(pid, nullptr, 0);
 }
-
-} // namespace executables
