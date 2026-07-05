@@ -4,26 +4,67 @@
 #include "redirection_types.hpp"
 #include "string_utils.hpp"
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <fcntl.h>
 #include <filesystem>
-#include <iostream>
 #include <optional>
 #include <print>
+#include <readline/readline.h>
 #include <string>
 #include <unistd.h>
 #include <unordered_set>
+#include <vector>
+
+const std::vector<std::string> shell_builtin_commands = {
+    "cd", "echo", "exit", "pwd", "type",
+};
+
+char* command_generator(const char* text, int state) {
+    static size_t index;
+    static std::string prefix;
+
+    if (state == 0) {
+        index = 0;
+        prefix = text;
+    }
+
+    while (index < shell_builtin_commands.size()) {
+        const auto& candidate = shell_builtin_commands[index++];
+
+        if (candidate.starts_with(prefix)) {
+            return strdup(candidate.c_str());
+        }
+    }
+
+    return nullptr;
+}
+
+char** complete_command(const char* text, int start, int end) {
+    rl_attempted_completion_over = 1;
+
+    if (start == 0) {
+        return rl_completion_matches(text, command_generator);
+    }
+
+    return nullptr;
+}
 
 int main() {
+    rl_attempted_completion_function = complete_command;
 
-    const auto shell_builtin_commands =
-        std::unordered_set<std::string>{"exit", "echo", "type", "pwd"};
+    const std::unordered_set<std::string> shell_builtin_commands_set(shell_builtin_commands.begin(),
+                                                                     shell_builtin_commands.end());
 
     while (true) {
-        std::print("$ ");
-        std::fflush(stdout);
+        char* line = readline("$ ");
 
-        std::string input;
-        std::getline(std::cin, input);
+        if (line == nullptr) {
+            break;
+        }
+
+        std::string input = line;
+        free(line);
 
         auto trimmed_input = string_utils::ltrim(input);
 
@@ -79,7 +120,7 @@ int main() {
         } else if (cmd == "type") {
             if (command_parts.size() >= 2) {
                 auto program_name = command_parts.at(1);
-                if (shell_builtin_commands.contains(program_name)) {
+                if (shell_builtin_commands_set.contains(program_name)) {
                     std::println("{} is a shell builtin", program_name);
                 } else {
                     auto path = fs_utils::find_executable(program_name);
