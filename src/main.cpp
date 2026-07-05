@@ -1,4 +1,5 @@
 #include "command_parser.hpp"
+#include "completion.hpp"
 #include "fs_utils.hpp"
 #include "output_redirect.hpp"
 #include "redirection_types.hpp"
@@ -23,14 +24,16 @@ const std::vector<std::string> shell_builtin_commands = {
 char* command_generator(const char* text, int state) {
     static size_t index;
     static std::string prefix;
+    static std::vector<std::string> candidates;
 
     if (state == 0) {
         index = 0;
         prefix = text;
+        candidates = completion::get_command_candidates(shell_builtin_commands);
     }
 
-    while (index < shell_builtin_commands.size()) {
-        const auto& candidate = shell_builtin_commands[index++];
+    while (index < candidates.size()) {
+        const auto& candidate = candidates[index++];
 
         if (candidate.starts_with(prefix)) {
             return strdup(candidate.c_str());

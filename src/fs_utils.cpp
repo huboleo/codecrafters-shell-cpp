@@ -25,11 +25,13 @@ std::vector<std::string> fs_utils::get_path_directories() {
     return dirs;
 }
 
+bool fs_utils::is_executable(const std::string& path) { return access(path.c_str(), X_OK) == 0; }
+
 std::optional<std::string> fs_utils::find_executable(const std::string& command) {
     for (const auto& dir : get_path_directories()) {
         std::string candidate = dir + "/" + command;
 
-        if (access(candidate.c_str(), X_OK) == 0) {
+        if (is_executable(candidate)) {
             return candidate;
         }
     }
