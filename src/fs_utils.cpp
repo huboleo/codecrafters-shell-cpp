@@ -1,10 +1,13 @@
 #include "fs_utils.hpp"
+#include <algorithm>
 #include <cstdlib>
 #include <cwctype>
+#include <filesystem>
 #include <optional>
 #include <sstream>
 #include <string>
 #include <sys/wait.h>
+#include <system_error>
 #include <unistd.h>
 #include <vector>
 
@@ -47,6 +50,43 @@ std::optional<std::string> fs_utils::resolve_home_directory() {
         return std::nullopt;
     }
     return std::string(home);
+}
+
+std::vector<std::string> fs_utils::get_files_in_current_directory() {
+    std::vector<std::string> files;
+
+    std::error_code ec;
+    auto current_dir = std::filesystem::current_path(ec);
+
+    if (ec) {
+        return files;
+    }
+
+    std::filesystem::directory_iterator entries(current_dir, ec);
+
+    if (ec) {
+        return files;
+    }
+
+    for (const auto& entry : entries) {
+        auto name = entry.path().filename().string();
+
+        if (name.empty()) {
+            continue;
+        }
+
+        std::error_code entry_ec;
+
+        if (entry.is_directory(entry_ec)) {
+            name += "/";
+        }
+
+        files.push_back(name);
+    }
+
+    std::sort(files.begin(), files.end());
+
+    return files;
 }
 
 void fs_utils::executables::run_executable(const std::string& path,

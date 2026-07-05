@@ -43,6 +43,28 @@ char* command_generator(const char* text, int state) {
     return nullptr;
 }
 
+char* file_generator(const char* text, int state) {
+    static size_t index;
+    static std::string prefix;
+    static std::vector<std::string> candidates;
+
+    if (state == 0) {
+        index = 0;
+        prefix = text;
+        candidates = fs_utils::get_files_in_current_directory();
+    }
+
+    while (index < candidates.size()) {
+        const auto& candidate = candidates[index++];
+
+        if (candidate.starts_with(prefix)) {
+            return strdup(candidate.c_str());
+        }
+    }
+
+    return nullptr;
+}
+
 char** complete_command(const char* text, int start, int end) {
     rl_attempted_completion_over = 1;
 
@@ -50,7 +72,7 @@ char** complete_command(const char* text, int start, int end) {
         return rl_completion_matches(text, command_generator);
     }
 
-    return nullptr;
+    return rl_completion_matches(text, file_generator);
 }
 
 int main() {
