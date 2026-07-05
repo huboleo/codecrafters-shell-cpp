@@ -68,7 +68,7 @@ std::vector<std::string> completion::get_file_candidates(const std::string& text
         }
 
         if (entry.is_directory()) {
-            name += "/";
+            name += "/ ";
         }
 
         candidates.push_back(dir_part + name);
