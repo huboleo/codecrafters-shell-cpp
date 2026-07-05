@@ -30,4 +30,6 @@ completion::get_command_candidates(const std::vector<std::string>& builtins) {
 
     std::sort(candidates.begin(), candidates.end());
     candidates.erase(std::unique(candidates.begin(), candidates.end()), candidates.end());
+
+    return candidates;
 }
