@@ -56,7 +56,7 @@ command_parser::Command command_parser::parse_command(const std::vector<std::str
             ++i;
         } else if ((parts.at(i) == ">>" || parts.at(i) == "1>>") && i + 1 < parts.size()) {
             result.stdout_redirect =
-                RedirectTarget{.path = parts[i + i], .mode = RedirectMode::Append};
+                RedirectTarget{.path = parts[i + 1], .mode = RedirectMode::Append};
             ++i;
         } else if (parts.at(i) == "2>" && i + 1 < parts.size()) {
             result.stderr_redirect =
