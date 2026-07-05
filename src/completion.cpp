@@ -33,3 +33,48 @@ completion::get_command_candidates(const std::vector<std::string>& builtins) {
 
     return candidates;
 }
+
+std::vector<std::string> completion::get_file_candidates(const std::string& text) {
+    std::vector<std::string> candidates;
+
+    auto slash_pos = text.find_last_of('/');
+
+    std::string dir_part;
+    std::string file_prefix;
+
+    if (slash_pos == std::string::npos) {
+        dir_part = "";
+        file_prefix = text;
+    } else {
+        dir_part = text.substr(0, slash_pos + 1);
+        file_prefix = text.substr(slash_pos + 1);
+    }
+
+    std::filesystem::path dir_to_scan = dir_part.empty() ? "." : dir_part;
+
+    std::error_code ec;
+    std::filesystem::directory_iterator entries(dir_to_scan, ec);
+
+    if (ec) {
+        return candidates;
+    }
+
+    for (const auto& entry : entries) {
+
+        std::string name = entry.path().filename().string();
+
+        if (!name.starts_with(file_prefix)) {
+            continue;
+        }
+
+        if (entry.is_directory()) {
+            name += "/";
+        }
+
+        candidates.push_back(dir_part + name);
+    }
+
+    std::sort(candidates.begin(), candidates.end());
+
+    return candidates;
+}

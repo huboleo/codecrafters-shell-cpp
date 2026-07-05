@@ -45,21 +45,16 @@ char* command_generator(const char* text, int state) {
 
 char* file_generator(const char* text, int state) {
     static size_t index;
-    static std::string prefix;
     static std::vector<std::string> candidates;
 
     if (state == 0) {
         index = 0;
-        prefix = text;
-        candidates = fs_utils::get_files_in_current_directory();
+        candidates = completion::get_file_candidates(text);
     }
 
     while (index < candidates.size()) {
         const auto& candidate = candidates[index++];
-
-        if (candidate.starts_with(prefix)) {
-            return strdup(candidate.c_str());
-        }
+        return strdup(candidate.c_str());
     }
 
     return nullptr;
