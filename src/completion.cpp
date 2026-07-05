@@ -67,8 +67,9 @@ std::vector<std::string> completion::get_file_candidates(const std::string& text
             continue;
         }
 
-        if (entry.is_directory()) {
-            name += "/ ";
+        std::error_code entry_ec;
+        if (entry.is_directory(entry_ec)) {
+            name += "/";
         }
 
         candidates.push_back(dir_part + name);

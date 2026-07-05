@@ -54,6 +54,12 @@ char* file_generator(const char* text, int state) {
 
     while (index < candidates.size()) {
         const auto& candidate = candidates[index++];
+        if (candidate.ends_with("/")) {
+            rl_completion_append_character = '\0';
+        } else {
+            rl_completion_append_character = ' ';
+        }
+
         return strdup(candidate.c_str());
     }
 
