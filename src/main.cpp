@@ -1,5 +1,7 @@
 #include "command_parser.hpp"
 #include "fs_utils.hpp"
+#include "output_redirect.hpp"
+#include "redirection_types.hpp"
 #include "string_utils.hpp"
 #include <cstdio>
 #include <fcntl.h>
@@ -48,34 +50,22 @@ int main() {
             break;
         }
 
-        int saved_stdout = -1;
+        OutputRedirect redirect;
 
         if (parsed_command.stdout_redirect.has_value()) {
-            std::fflush(stdout);
-
-            saved_stdout = dup(STDOUT_FILENO);
-
-            if (saved_stdout == -1) {
+            if (!redirect.redirect_stdout(parsed_command.stdout_redirect->path,
+                                          parsed_command.stdout_redirect->mode)) {
                 std::println(stderr, "redirection error");
                 continue;
             }
+        }
 
-            int fd = open(parsed_command.stdout_redirect.value().c_str(),
-                          O_WRONLY | O_CREAT | O_TRUNC, 0644);
-
-            if (fd == -1) {
-                close(saved_stdout);
+        if (parsed_command.stderr_redirect.has_value()) {
+            if (!redirect.redirect_stderr(parsed_command.stderr_redirect->path,
+                                          parsed_command.stderr_redirect->mode)) {
                 std::println(stderr, "redirection error");
                 continue;
             }
-
-            if (dup2(fd, STDOUT_FILENO) == -1) {
-                close(fd);
-                close(saved_stdout);
-                std::println(stderr, "redirection error");
-                continue;
-            }
-            close(fd);
         }
 
         if (cmd == "echo") {

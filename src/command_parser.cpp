@@ -1,5 +1,5 @@
 #include "command_parser.hpp"
-
+#include "redirection_types.hpp"
 #include <string>
 #include <vector>
 
@@ -51,7 +51,20 @@ command_parser::Command command_parser::parse_command(const std::vector<std::str
 
     for (size_t i = 0; i < parts.size(); ++i) {
         if ((parts.at(i) == ">" || parts.at(i) == "1>") && i + 1 < parts.size()) {
-            result.stdout_redirect = parts[i + 1];
+            result.stdout_redirect =
+                RedirectTarget{.path = parts[i + 1], .mode = RedirectMode::Truncate};
+            ++i;
+        } else if ((parts.at(i) == ">>" || parts.at(i) == "1>>") && i + 1 < parts.size()) {
+            result.stdout_redirect =
+                RedirectTarget{.path = parts[i + i], .mode = RedirectMode::Append};
+            ++i;
+        } else if (parts.at(i) == "2>" && i + 1 < parts.size()) {
+            result.stderr_redirect =
+                RedirectTarget{.path = parts[i + 1], .mode = RedirectMode::Truncate};
+            ++i;
+        } else if (parts.at(i) == "2>>" && i + 1 < parts.size()) {
+            result.stderr_redirect =
+                RedirectTarget{.path = parts[i + 1], .mode = RedirectMode::Append};
             ++i;
         } else {
             result.args.push_back(parts[i]);
