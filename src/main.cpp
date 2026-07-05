@@ -118,15 +118,5 @@ int main() {
                 std::println("{}: command not found", cmd);
             }
         }
-
-        if (saved_stdout != -1) {
-            std::fflush(stdout);
-            if (dup2(saved_stdout, STDOUT_FILENO) == -1) {
-                close(saved_stdout);
-                std::println(stderr, "failed to restore stdout");
-            } else {
-                close(saved_stdout);
-            }
-        }
     }
 }
