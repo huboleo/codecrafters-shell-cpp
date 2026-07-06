@@ -1,5 +1,5 @@
-#include "completion.hpp"
-#include "fs_utils.hpp"
+#include "completion/completion.hpp"
+#include "utils/fs_utils.hpp"
 #include <algorithm>
 #include <filesystem>
 #include <string>

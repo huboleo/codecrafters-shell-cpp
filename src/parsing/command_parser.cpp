@@ -1,5 +1,5 @@
-#include "command_parser.hpp"
-#include "redirection_types.hpp"
+#include "parsing/command_parser.hpp"
+#include "redirection/redirection_types.hpp"
 #include <string>
 #include <vector>
 

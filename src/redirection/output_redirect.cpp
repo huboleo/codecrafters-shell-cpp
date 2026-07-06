@@ -1,5 +1,5 @@
-#include "output_redirect.hpp"
-#include "redirection_types.hpp"
+#include "redirection/output_redirect.hpp"
+#include "redirection/redirection_types.hpp"
 #include <string>
 #include <utility>
 #include <vector>

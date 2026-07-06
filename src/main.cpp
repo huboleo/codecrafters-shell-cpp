@@ -1,9 +1,10 @@
-#include "command_parser.hpp"
-#include "completion.hpp"
-#include "fs_utils.hpp"
-#include "output_redirect.hpp"
-#include "redirection_types.hpp"
-#include "string_utils.hpp"
+#include "completion/completion.hpp"
+#include "parsing/command_parser.hpp"
+#include "redirection/output_redirect.hpp"
+#include "redirection/redirection_types.hpp"
+#include "utils/fs_utils.hpp"
+#include "utils/string_utils.hpp"
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -20,6 +21,8 @@
 const std::vector<std::string> shell_builtin_commands = {
     "cd", "complete", "echo", "exit", "pwd", "type",
 };
+
+const std::vector<std::pair<std::string, std::string>> registered_completions;
 
 char* command_generator(const char* text, int state) {
     static size_t index;
@@ -155,6 +158,22 @@ int main() {
                     } else {
                         std::println("{}: not found", program_name);
                     }
+                }
+            }
+        } else if (cmd == "complete") {
+            if (command_parts.size() >= 3) {
+                if (command_parts[1] == "-p") {
+                    auto it =
+                        std::find_if(registered_completions.begin(), registered_completions.end(),
+                                     [command_parts](const auto& item) {
+                                         return item.first == command_parts[2];
+                                     });
+                    if (it != registered_completions.end()) {
+                        std::println();
+                    } else {
+                        std::println("complete: {}: no completion specification", command_parts[2]);
+                    }
+                } else if (command_parts[1] == "-C") {
                 }
             }
         } else if (cmd == "pwd") {

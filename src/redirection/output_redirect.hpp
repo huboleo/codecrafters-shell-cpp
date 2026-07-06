@@ -1,6 +1,6 @@
 #pragma once
 
-#include "redirection_types.hpp"
+#include "redirection/redirection_types.hpp"
 #include <string>
 #include <utility>
 #include <vector>
@@ -11,8 +11,8 @@ class OutputRedirect {
     ~OutputRedirect();
     OutputRedirect(const OutputRedirect&) = delete;
     OutputRedirect& operator=(const OutputRedirect&) = delete;
-    bool redirect_stdout(const std::string& path, RedirectMode mode);
-    bool redirect_stderr(const std::string& path, RedirectMode mode);
+    [[nodiscard]] bool redirect_stdout(const std::string& path, RedirectMode mode);
+    [[nodiscard]] bool redirect_stderr(const std::string& path, RedirectMode mode);
 
   private:
     std::vector<std::pair<int, int>> saved_fds_;
