@@ -18,7 +18,7 @@
 #include <vector>
 
 const std::vector<std::string> shell_builtin_commands = {
-    "cd", "echo", "exit", "pwd", "type",
+    "cd", "complete", "echo", "exit", "pwd", "type",
 };
 
 char* command_generator(const char* text, int state) {
