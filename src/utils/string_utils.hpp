@@ -8,4 +8,6 @@ std::string ltrim(const std::string& input);
 
 std::vector<std::string> split_whitespace(const std::string& input);
 
+std::string surround_with_single_quotes(const std::string& input);
+
 } // namespace string_utils

@@ -1,5 +1,6 @@
 #include "utils/string_utils.hpp"
 #include <cctype>
+#include <format>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -24,4 +25,8 @@ std::vector<std::string> string_utils::split_whitespace(const std::string& input
     }
 
     return parts;
+}
+
+std::string string_utils::surround_with_single_quotes(const std::string& input) {
+    return std::format("'{}'", input);
 }

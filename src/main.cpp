@@ -22,7 +22,7 @@ const std::vector<std::string> shell_builtin_commands = {
     "cd", "complete", "echo", "exit", "pwd", "type",
 };
 
-const std::vector<std::pair<std::string, std::string>> registered_completions;
+std::vector<std::pair<std::string, std::string>> registered_completions;
 
 char* command_generator(const char* text, int state) {
     static size_t index;
@@ -169,11 +169,19 @@ int main() {
                                          return item.first == command_parts[2];
                                      });
                     if (it != registered_completions.end()) {
-                        std::println();
+                        std::println("{} {}", it->second, it->first);
                     } else {
                         std::println("complete: {}: no completion specification", command_parts[2]);
                     }
                 } else if (command_parts[1] == "-C") {
+                    if (command_parts.size() >= 4) {
+                        auto path = string_utils::surround_with_single_quotes(command_parts[2]);
+                        auto& key = command_parts[3];
+                        std::erase_if(registered_completions,
+                                      [&](const auto& pair) { return pair.first == key; });
+                        auto rest = std::format("complete -C {}", path);
+                        registered_completions.push_back({key, rest});
+                    }
                 }
             }
         } else if (cmd == "pwd") {
