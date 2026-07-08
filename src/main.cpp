@@ -24,6 +24,7 @@ const std::vector<std::string> shell_builtin_commands = {
 };
 
 std::vector<std::pair<std::string, std::string>> registered_completions;
+std::optional<completion::CompleterContext> current_completer_context;
 
 char* command_generator(const char* text, int state) {
     static size_t index;
@@ -77,11 +78,18 @@ char* registered_completions_generator(const char* text, int state) {
     if (state == 0) {
         index = 0;
 
-        auto completer =
-            completion::get_registered_completer_for_line(rl_line_buffer, registered_completions);
+        // fine cause complete_command already fills the context;
+        if (current_completer_context.has_value()) {
+            const auto& context = current_completer_context.value();
 
-        if (completer.has_value()) {
-            candidates = process::run_and_capture_lines(completer.value());
+            candidates =
+                process::run_completer_script(context.script_path, {
+                                                                       context.command,
+                                                                       context.current_word,
+                                                                       context.previous_word,
+                                                                   });
+        } else {
+            candidates = {};
         }
     }
 
@@ -103,10 +111,10 @@ char** complete_command(const char* text, int start, int end) {
         return rl_completion_matches(text, command_generator);
     }
 
-    auto completer =
-        completion::get_registered_completer_for_line(rl_line_buffer, registered_completions);
+    current_completer_context =
+        completion::get_completer_context(rl_line_buffer, start, text, registered_completions);
 
-    if (completer.has_value()) {
+    if (current_completer_context.has_value()) {
         return rl_completion_matches(text, registered_completions_generator);
     }
 

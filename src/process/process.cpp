@@ -8,7 +8,7 @@
 void process::run_executable(const std::string& path, const std::vector<std::string>& args) {
     std::vector<char*> argv;
     for (const auto& arg : args) {
-        // Cast is ok here cause execv does not modify data in argv
+        // Cast should be ok here cause execv does not modify data in argv
         argv.push_back(const_cast<char*>(arg.c_str()));
     }
 
@@ -24,7 +24,22 @@ void process::run_executable(const std::string& path, const std::vector<std::str
     waitpid(pid, nullptr, 0);
 }
 
-std::vector<std::string> process::run_and_capture_lines(const std::string& path) {
+std::vector<std::string> process::run_completer_script(const std::string& path,
+                                                       const std::vector<std::string>& args) {
+    std::vector<std::string> argv_str = args;
+
+    if (argv_str.empty()) {
+        argv_str.push_back(path);
+    }
+
+    std::vector<char*> argv;
+    argv.reserve(argv_str.size() + 1);
+
+    for (auto& arg : argv_str) {
+        argv.push_back(arg.data());
+    }
+
+    argv.push_back(nullptr);
 
     int fildes[2];
 
@@ -45,13 +60,7 @@ std::vector<std::string> process::run_and_capture_lines(const std::string& path)
         dup2(fildes[1], STDOUT_FILENO);
         close(fildes[1]);
 
-        char* argv[] = {
-            // Cast is ok here cause execv does not modify data in argv
-            const_cast<char*>(path.c_str()),
-            nullptr,
-        };
-
-        execv(path.c_str(), argv);
+        execv(path.c_str(), argv.data());
         std::_Exit(1);
     }
 
