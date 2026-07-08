@@ -26,11 +26,8 @@ void process::run_executable(const std::string& path, const std::vector<std::str
 
 std::vector<std::string> process::run_completer_script(const std::string& path,
                                                        const std::vector<std::string>& args) {
-    std::vector<std::string> argv_str = args;
-
-    if (argv_str.empty()) {
-        argv_str.push_back(path);
-    }
+    std::vector<std::string> argv_str = {path};
+    argv_str.insert(argv_str.end(), args.begin(), args.end());
 
     std::vector<char*> argv;
     argv.reserve(argv_str.size() + 1);
