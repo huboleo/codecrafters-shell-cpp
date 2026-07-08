@@ -1,5 +1,6 @@
 #include "completion/completion.hpp"
 #include "parsing/command_parser.hpp"
+#include "process/process.hpp"
 #include "redirection/output_redirect.hpp"
 #include "redirection/redirection_types.hpp"
 #include "utils/fs_utils.hpp"
@@ -69,11 +70,44 @@ char* file_generator(const char* text, int state) {
     return nullptr;
 }
 
+char* registered_completions_generator(const char* text, int state) {
+    static size_t index;
+    static std::vector<std::string> candidates;
+
+    if (state == 0) {
+        index = 0;
+
+        auto completer =
+            completion::get_registered_completer_for_line(rl_line_buffer, registered_completions);
+
+        if (completer.has_value()) {
+            candidates = process::run_and_capture_lines(completer.value());
+        }
+    }
+
+    while (index < candidates.size()) {
+        const auto& candidate = candidates[index++];
+        if (candidate.starts_with(text)) {
+            rl_completion_append_character = ' ';
+            return strdup(candidate.c_str());
+        }
+    }
+
+    return nullptr;
+}
+
 char** complete_command(const char* text, int start, int end) {
     rl_attempted_completion_over = 1;
 
     if (start == 0) {
         return rl_completion_matches(text, command_generator);
+    }
+
+    auto completer =
+        completion::get_registered_completer_for_line(rl_line_buffer, registered_completions);
+
+    if (completer.has_value()) {
+        return rl_completion_matches(text, registered_completions_generator);
     }
 
     return rl_completion_matches(text, file_generator);
@@ -169,18 +203,19 @@ int main() {
                                          return item.first == command_parts[2];
                                      });
                     if (it != registered_completions.end()) {
-                        std::println("{} {}", it->second, it->first);
+                        auto formatted_command =
+                            std::format("complete -C {}",
+                                        string_utils::surround_with_single_quotes(it->second));
+                        std::println("{} {}", formatted_command, it->first);
                     } else {
                         std::println("complete: {}: no completion specification", command_parts[2]);
                     }
                 } else if (command_parts[1] == "-C") {
                     if (command_parts.size() >= 4) {
-                        auto path = string_utils::surround_with_single_quotes(command_parts[2]);
                         auto& key = command_parts[3];
                         std::erase_if(registered_completions,
                                       [&](const auto& pair) { return pair.first == key; });
-                        auto rest = std::format("complete -C {}", path);
-                        registered_completions.push_back({key, rest});
+                        registered_completions.push_back({key, command_parts[2]});
                     }
                 }
             }
@@ -207,7 +242,7 @@ int main() {
         } else {
             auto program = fs_utils::find_executable(cmd);
             if (program.has_value()) {
-                fs_utils::executables::run_executable(program.value(), command_parts);
+                process::run_executable(program.value(), command_parts);
             } else {
                 std::println("{}: command not found", cmd);
             }

@@ -48,22 +48,3 @@ std::optional<std::string> fs_utils::resolve_home_directory() {
     }
     return std::string(home);
 }
-
-void fs_utils::executables::run_executable(const std::string& path,
-                                           const std::vector<std::string>& args) {
-    std::vector<char*> argv;
-    for (const auto& arg : args) {
-        argv.push_back(const_cast<char*>(arg.c_str()));
-    }
-
-    argv.push_back(nullptr);
-
-    pid_t pid = fork();
-
-    if (pid == 0) {
-        execv(path.c_str(), argv.data());
-        std::exit(1);
-    }
-
-    waitpid(pid, nullptr, 0);
-}

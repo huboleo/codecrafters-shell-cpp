@@ -1,9 +1,12 @@
 #include "completion/completion.hpp"
+#include "parsing/command_parser.hpp"
 #include "utils/fs_utils.hpp"
 #include <algorithm>
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <system_error>
+#include <utility>
 #include <vector>
 
 std::vector<std::string>
@@ -78,4 +81,25 @@ std::vector<std::string> completion::get_file_candidates(const std::string& text
     std::sort(candidates.begin(), candidates.end());
 
     return candidates;
+}
+
+std::optional<std::string> completion::get_registered_completer_for_line(
+    const std::string& line,
+    const std::vector<std::pair<std::string, std::string>>& registered_completions) {
+    auto parts = command_parser::split_command(line);
+
+    if (parts.empty()) {
+        return std::nullopt;
+    }
+
+    auto cmd = parts[0];
+
+    auto it = std::find_if(registered_completions.begin(), registered_completions.end(),
+                           [&](const auto& pair) { return pair.first == cmd; });
+
+    if (it != registered_completions.end()) {
+        return it->second;
+    } else {
+        return std::nullopt;
+    }
 }
