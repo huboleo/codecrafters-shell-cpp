@@ -82,12 +82,13 @@ char* registered_completions_generator(const char* text, int state) {
         if (current_completer_context.has_value()) {
             const auto& context = current_completer_context.value();
 
-            candidates =
-                process::run_completer_script(context.script_path, {
-                                                                       context.command,
-                                                                       context.current_word,
-                                                                       context.previous_word,
-                                                                   });
+            candidates = process::run_completer_script(context.script_path,
+                                                       {
+                                                           context.command,
+                                                           context.current_word,
+                                                           context.previous_word,
+                                                       },
+                                                       context.comp_line, context.comp_point);
         } else {
             candidates = {};
         }
@@ -112,7 +113,7 @@ char** complete_command(const char* text, int start, int end) {
     }
 
     current_completer_context =
-        completion::get_completer_context(rl_line_buffer, start, text, registered_completions);
+        completion::get_completer_context(rl_line_buffer, start, end, text, registered_completions);
 
     if (current_completer_context.has_value()) {
         return rl_completion_matches(text, registered_completions_generator);

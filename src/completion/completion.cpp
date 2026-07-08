@@ -84,7 +84,8 @@ std::vector<std::string> completion::get_file_candidates(const std::string& text
 }
 
 std::optional<completion::CompleterContext> completion::get_completer_context(
-    const std::string& line, int current_word_start, const std::string& current_word,
+    const std::string& line, int current_word_start, int current_word_end,
+    const std::string& current_word,
     const std::vector<std::pair<std::string, std::string>>& registered_completions) {
 
     auto words_before_current = command_parser::split_command(line.substr(0, current_word_start));
@@ -104,8 +105,12 @@ std::optional<completion::CompleterContext> completion::get_completer_context(
 
     std::string previous_word = words_before_current.size() >= 2 ? words_before_current.back() : "";
 
-    return completion::CompleterContext{.script_path = it->second,
-                                        .command = cmd,
-                                        .current_word = current_word,
-                                        .previous_word = previous_word};
+    return completion::CompleterContext{
+        .script_path = it->second,
+        .command = cmd,
+        .current_word = current_word,
+        .previous_word = previous_word,
+        .comp_line = line,
+        .comp_point = current_word_end,
+    };
 }

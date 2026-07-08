@@ -1,5 +1,6 @@
 #include "process.hpp"
 #include <sstream>
+#include <stdlib.h>
 #include <string>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -25,7 +26,9 @@ void process::run_executable(const std::string& path, const std::vector<std::str
 }
 
 std::vector<std::string> process::run_completer_script(const std::string& path,
-                                                       const std::vector<std::string>& args) {
+                                                       const std::vector<std::string>& args,
+                                                       const std::string& comp_line,
+                                                       int comp_point) {
     std::vector<std::string> argv_str = {path};
     argv_str.insert(argv_str.end(), args.begin(), args.end());
 
@@ -56,6 +59,9 @@ std::vector<std::string> process::run_completer_script(const std::string& path,
         close(fildes[0]);
         dup2(fildes[1], STDOUT_FILENO);
         close(fildes[1]);
+
+        setenv("COMP_LINE", comp_line.c_str(), 1);
+        setenv("COMP_POINT", std::to_string(comp_point).c_str(), 1);
 
         execv(path.c_str(), argv.data());
         std::_Exit(1);
