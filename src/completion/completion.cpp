@@ -103,7 +103,7 @@ std::optional<completion::CompleterContext> completion::get_completer_context(
         return std::nullopt;
     }
 
-    std::string previous_word = words_before_current.size() >= 2 ? words_before_current.back() : "";
+    std::string previous_word = words_before_current.back();
 
     return completion::CompleterContext{
         .script_path = it->second,
