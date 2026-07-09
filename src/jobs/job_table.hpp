@@ -19,6 +19,7 @@ class JobTable {
   public:
     /// Returns an assigned background job id;
     int add(pid_t f, const std::string& command);
+    void remove_done();
     void refresh();
     void print() const;
 

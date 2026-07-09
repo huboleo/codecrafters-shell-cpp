@@ -43,7 +43,9 @@ void JobTable::refresh() {
             job.status = JobStatus::Done;
         }
     }
+}
 
+void JobTable::remove_done() {
     std::erase_if(background_jobs_, [](const auto& job) { return job.status == JobStatus::Done; });
 }
 

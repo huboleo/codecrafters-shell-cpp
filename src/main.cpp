@@ -206,6 +206,7 @@ int main() {
                 }
             }
         } else if (cmd == "jobs") {
+            job_table.refresh();
             job_table.print();
         } else if (cmd == "complete") {
             if (command_parts.size() >= 3) {
@@ -277,6 +278,6 @@ int main() {
             }
         }
 
-        job_table.refresh();
+        job_table.remove_done();
     }
 }
