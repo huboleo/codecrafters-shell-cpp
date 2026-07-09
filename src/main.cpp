@@ -212,6 +212,7 @@ int main() {
         } else if (cmd == "jobs") {
             job_table.refresh();
             job_table.print_all();
+            job_table.remove_done();
         } else if (cmd == "complete") {
             if (command_parts.size() >= 3) {
                 if (command_parts[1] == "-p") {
