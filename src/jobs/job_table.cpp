@@ -30,7 +30,7 @@ int JobTable::add(pid_t pid, const std::string& command) {
             background_jobs_.begin(), background_jobs_.end(),
             [](const auto& first, const auto& second) { return first.id < second.id; });
         if (it != background_jobs_.end()) {
-            next_job_id_ = it->id;
+            next_job_id_ = it->id + 1;
         }
     }
 
