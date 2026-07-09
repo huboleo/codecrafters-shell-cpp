@@ -1,4 +1,5 @@
 #include "completion/completion.hpp"
+#include "jobs/job_table.hpp";
 #include "parsing/command_parser.hpp"
 #include "process/process.hpp"
 #include "redirection/output_redirect.hpp"
@@ -25,8 +26,6 @@ const std::vector<std::string> shell_builtin_commands = {
 
 std::vector<std::pair<std::string, std::string>> registered_completions;
 std::optional<completion::CompleterContext> current_completer_context;
-
-static size_t background_job_id_counter = 0;
 
 char* command_generator(const char* text, int state) {
     static size_t index;
@@ -129,6 +128,7 @@ int main() {
 
     const std::unordered_set<std::string> shell_builtin_commands_set(shell_builtin_commands.begin(),
                                                                      shell_builtin_commands.end());
+    JobTable job_table;
 
     while (true) {
         char* line = readline("$ ");
@@ -206,6 +206,7 @@ int main() {
                 }
             }
         } else if (cmd == "jobs") {
+            job_table.print();
         } else if (cmd == "complete") {
             if (command_parts.size() >= 3) {
                 if (command_parts[1] == "-p") {
@@ -265,7 +266,8 @@ int main() {
                     auto result = process::run_background_job(program.value(), command_parts);
                     if (result.has_value()) {
                         auto pid = result.value();
-                        std::println("[{}] {}", ++background_job_id_counter, pid);
+                        int job_id = job_table.add(pid, trimmed_input);
+                        std::println("[{}] {}", job_id, pid);
                     }
                 } else {
                     process::run_executable(program.value(), command_parts);
@@ -274,5 +276,7 @@ int main() {
                 std::println("{}: command not found", cmd);
             }
         }
+
+        job_table.refresh();
     }
 }
