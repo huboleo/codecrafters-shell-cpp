@@ -1,4 +1,5 @@
 #include "process.hpp"
+#include <optional>
 #include <sstream>
 #include <stdlib.h>
 #include <string>
@@ -92,4 +93,30 @@ std::vector<std::string> process::run_completer_script(const std::string& path,
     }
 
     return candidates;
+}
+
+std::optional<pid_t> process::run_background_job(const std::string& path,
+                                                 const std::vector<std::string>& args) {
+
+    std::vector<std::string> args_str = args;
+    std::vector<char*> argv;
+
+    for (auto& arg : args_str) {
+        argv.push_back(arg.data());
+    }
+
+    argv.push_back(nullptr);
+
+    pid_t pid = fork();
+
+    if (pid == 0) {
+        execv(path.c_str(), argv.data());
+        std::_Exit(1);
+    }
+
+    if (pid > 0) {
+        return pid;
+    }
+
+    return std::nullopt;
 }

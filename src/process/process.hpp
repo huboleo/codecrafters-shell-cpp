@@ -1,9 +1,13 @@
 #pragma once
+#include <optional>
 #include <string>
 #include <vector>
 
 namespace process {
 void run_executable(const std::string& path, const std::vector<std::string>& args);
+
+std::optional<pid_t> run_background_job(const std::string& path,
+                                        const std::vector<std::string>& args);
 
 std::vector<std::string> run_completer_script(const std::string& path,
                                               const std::vector<std::string>& args,

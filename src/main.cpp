@@ -26,6 +26,8 @@ const std::vector<std::string> shell_builtin_commands = {
 std::vector<std::pair<std::string, std::string>> registered_completions;
 std::optional<completion::CompleterContext> current_completer_context;
 
+static size_t background_job_id_counter = 0;
+
 char* command_generator(const char* text, int state) {
     static size_t index;
     static std::string prefix;
@@ -258,7 +260,16 @@ int main() {
         } else {
             auto program = fs_utils::find_executable(cmd);
             if (program.has_value()) {
-                process::run_executable(program.value(), command_parts);
+                if (command_parts.size() >= 2 && command_parts.back() == "&") {
+                    command_parts.pop_back();
+                    auto result = process::run_background_job(program.value(), command_parts);
+                    if (result.has_value()) {
+                        auto pid = result.value();
+                        std::println("[{}] {}", ++background_job_id_counter, pid);
+                    }
+                } else {
+                    process::run_executable(program.value(), command_parts);
+                }
             } else {
                 std::println("{}: command not found", cmd);
             }
