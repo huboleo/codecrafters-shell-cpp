@@ -71,3 +71,23 @@ void JobTable::print() const {
         std::println("[{}]{}  {:<24}{}", job.id, mark, to_string(job.status), job.command);
     }
 }
+
+void JobTable::print_done() const {
+    for (size_t i = 0; i < background_jobs_.size(); ++i) {
+        const auto& job = background_jobs_[i];
+
+        if (job.status != JobStatus::Done) {
+            continue;
+        }
+
+        char mark = ' ';
+
+        if (i == background_jobs_.size() - 1) {
+            mark = '+';
+        } else if (i == background_jobs_.size() - 2) {
+            mark = '-';
+        }
+
+        std::println("[{}]{}  {:<24}{}", job.id, mark, to_string(job.status), job.command);
+    }
+}

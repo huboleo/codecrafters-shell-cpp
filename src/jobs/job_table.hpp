@@ -21,7 +21,8 @@ class JobTable {
     int add(pid_t f, const std::string& command);
     void remove_done();
     void refresh();
-    void print() const;
+    void print_all() const;
+    void print_done() const;
 
   private:
     std::vector<Job> background_jobs_;

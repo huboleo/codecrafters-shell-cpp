@@ -1,5 +1,5 @@
 #include "completion/completion.hpp"
-#include "jobs/job_table.hpp";
+#include "jobs/job_table.hpp"
 #include "parsing/command_parser.hpp"
 #include "process/process.hpp"
 #include "redirection/output_redirect.hpp"
@@ -131,6 +131,10 @@ int main() {
     JobTable job_table;
 
     while (true) {
+        job_table.refresh();
+        job_table.print_done();
+        job_table.remove_done();
+
         char* line = readline("$ ");
 
         if (line == nullptr) {
@@ -207,7 +211,7 @@ int main() {
             }
         } else if (cmd == "jobs") {
             job_table.refresh();
-            job_table.print();
+            job_table.print_all();
         } else if (cmd == "complete") {
             if (command_parts.size() >= 3) {
                 if (command_parts[1] == "-p") {
@@ -277,7 +281,5 @@ int main() {
                 std::println("{}: command not found", cmd);
             }
         }
-
-        job_table.remove_done();
     }
 }
