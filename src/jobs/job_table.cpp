@@ -1,5 +1,6 @@
 #include "job_table.hpp"
 
+#include "utils/string_utils.hpp"
 #include <cerrno>
 #include <print>
 #include <string>
@@ -39,6 +40,12 @@ void JobTable::refresh() {
         auto result = waitpid(job.pid, &status, WNOHANG);
         if (result == job.pid) {
             job.status = JobStatus::Done;
+            job.command = string_utils::rtrim(job.command);
+
+            if (!job.command.empty() && job.command.back() == '&') {
+                job.command.pop_back();
+                job.command = string_utils::rtrim(job.command);
+            }
         } else if (result == -1 && errno == ECHILD) {
             job.status = JobStatus::Done;
         }

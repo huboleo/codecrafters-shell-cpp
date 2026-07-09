@@ -6,6 +6,8 @@
 namespace string_utils {
 std::string ltrim(const std::string& input);
 
+std::string rtrim(const std::string& input);
+
 std::vector<std::string> split_whitespace(const std::string& input);
 
 std::string surround_with_single_quotes(const std::string& input);
