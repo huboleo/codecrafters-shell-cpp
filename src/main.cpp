@@ -204,7 +204,6 @@ int main() {
                 }
             }
         } else if (cmd == "jobs") {
-            std::println();
         } else if (cmd == "complete") {
             if (command_parts.size() >= 3) {
                 if (command_parts[1] == "-p") {
