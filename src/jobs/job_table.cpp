@@ -1,6 +1,8 @@
 #include "job_table.hpp"
 
 #include "utils/string_utils.hpp"
+#include <algorith>
+#include <algorithm>
 #include <cerrno>
 #include <print>
 #include <string>
@@ -22,6 +24,17 @@ std::string_view to_string(JobStatus status) {
 } // namespace
 
 int JobTable::add(pid_t pid, const std::string& command) {
+    if (background_jobs_.empty()) {
+        next_job_id_ = 1;
+    } else {
+        auto it = std::max_element(
+            background_jobs_.begin(), background_jobs_.end(),
+            [](const auto& first, const auto& second) { return first.id < second.id; });
+        if (it != background_jobs_.end()) {
+            next_job_id_ = it->id;
+        }
+    }
+
     auto current_id = next_job_id_;
     background_jobs_.push_back(Job{
         .id = current_id,
