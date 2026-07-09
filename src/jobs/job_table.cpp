@@ -56,7 +56,7 @@ void JobTable::remove_done() {
     std::erase_if(background_jobs_, [](const auto& job) { return job.status == JobStatus::Done; });
 }
 
-void JobTable::print() const {
+void JobTable::print_all() const {
     for (size_t i = 0; i < background_jobs_.size(); ++i) {
         const auto& job = background_jobs_[i];
 
