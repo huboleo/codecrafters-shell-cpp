@@ -97,7 +97,7 @@ std::optional<completion::CompleterContext> completion::get_completer_context(
     const auto& cmd = words_before_current[0];
 
     auto it = std::find_if(registered_completions.begin(), registered_completions.end(),
-                           [&](const auto& pair) { return pair.first == cmd; });
+                           [&cmd](const auto& pair) { return pair.first == cmd; });
 
     if (it == registered_completions.end()) {
         return std::nullopt;

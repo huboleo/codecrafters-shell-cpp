@@ -223,8 +223,14 @@ int main() {
                     if (command_parts.size() >= 4) {
                         auto& key = command_parts[3];
                         std::erase_if(registered_completions,
-                                      [&](const auto& pair) { return pair.first == key; });
+                                      [&key](const auto& pair) { return pair.first == key; });
                         registered_completions.push_back({key, command_parts[2]});
+                    }
+                } else if (command_parts[1] == "-r") {
+                    if (command_parts.size() >= 3) {
+                        const auto& key = command_parts[2];
+                        std::erase_if(registered_completions,
+                                      [&key](const auto& pair) { return pair.first == key; });
                     }
                 }
             }
