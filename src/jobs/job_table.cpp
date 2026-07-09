@@ -1,7 +1,6 @@
 #include "job_table.hpp"
 
 #include "utils/string_utils.hpp"
-#include <algorith>
 #include <algorithm>
 #include <cerrno>
 #include <print>
