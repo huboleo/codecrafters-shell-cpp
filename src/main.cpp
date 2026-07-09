@@ -20,7 +20,7 @@
 #include <vector>
 
 const std::vector<std::string> shell_builtin_commands = {
-    "cd", "complete", "echo", "exit", "pwd", "type",
+    "cd", "complete", "echo", "exit", "jobs", "pwd", "type",
 };
 
 std::vector<std::pair<std::string, std::string>> registered_completions;
@@ -203,6 +203,8 @@ int main() {
                     }
                 }
             }
+        } else if (cmd == "jobs") {
+            std::println();
         } else if (cmd == "complete") {
             if (command_parts.size() >= 3) {
                 if (command_parts[1] == "-p") {
