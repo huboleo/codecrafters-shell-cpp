@@ -14,6 +14,7 @@
 #include <fcntl.h>
 #include <optional>
 #include <print>
+#include <readline/history.h>
 #include <readline/readline.h>
 #include <string>
 #include <unistd.h>
@@ -147,6 +148,8 @@ int main() {
         if (trimmed_input.empty()) {
             continue;
         }
+
+        add_history(trimmed_input.c_str());
 
         auto parts = command_parser::split_command(trimmed_input);
 

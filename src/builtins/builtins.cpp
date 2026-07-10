@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <format>
 #include <print>
+#include <readline/history.h>
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -147,7 +148,19 @@ int run_type(const std::vector<std::string>& args) {
     return 0;
 }
 
-int run_history() { return 0; }
+int run_history(const std::vector<std::string>& args) {
+
+    for (int i = history_base; i < history_base + history_length; ++i) {
+        HIST_ENTRY* entry = history_get(i);
+
+        if (entry != nullptr) {
+            std::println("{} {}", i, entry->line);
+        }
+    }
+
+    return 0;
+}
+
 } // namespace
 
 bool builtins::is_builtin(const std::string& command) {
@@ -171,7 +184,7 @@ int builtins::run(const std::vector<std::string>& args, ShellContext& shell_cont
     } else if (command == "exit") {
         return run_exit(shell_context);
     } else if (command == "history") {
-        return run_history();
+        return run_history(args);
     } else if (command == "jobs") {
         return run_jobs(shell_context);
     } else if (command == "pwd") {
