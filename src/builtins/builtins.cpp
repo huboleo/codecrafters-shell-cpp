@@ -149,8 +149,16 @@ int run_type(const std::vector<std::string>& args) {
 }
 
 int run_history(const std::vector<std::string>& args) {
+    int length = history_length;
 
-    for (int i = history_base; i < history_base + history_length; ++i) {
+    if (args.size() == 2) {
+        auto second_arg_number = string_utils::to_int(args[1]);
+        if (second_arg_number.has_value() && second_arg_number.value() > 0) {
+            length = second_arg_number.value();
+        }
+    }
+
+    for (int i = history_base; i < history_base + length; ++i) {
         HIST_ENTRY* entry = history_get(i);
 
         if (entry != nullptr) {

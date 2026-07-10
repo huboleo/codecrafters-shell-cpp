@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -11,5 +12,7 @@ std::string rtrim(const std::string& input);
 std::vector<std::string> split_whitespace(const std::string& input);
 
 std::string surround_with_single_quotes(const std::string& input);
+
+std::optional<int> to_int(const std::string& input);
 
 } // namespace string_utils

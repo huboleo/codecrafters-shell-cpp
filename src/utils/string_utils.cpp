@@ -1,6 +1,8 @@
 #include "utils/string_utils.hpp"
 #include <cctype>
+#include <charconv>
 #include <format>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -39,4 +41,20 @@ std::vector<std::string> string_utils::split_whitespace(const std::string& input
 
 std::string string_utils::surround_with_single_quotes(const std::string& input) {
     return std::format("'{}'", input);
+}
+
+std::optional<int> string_utils::to_int(const std::string& input) {
+    if (input.empty()) {
+        return std::nullopt;
+    }
+
+    int value;
+
+    auto [ptr, ec] = std::from_chars(input.data(), input.data() + input.size(), value);
+
+    if (ec != std::errc{} || ptr != input.data() + input.size()) {
+        return std::nullopt;
+    }
+
+    return value;
 }
