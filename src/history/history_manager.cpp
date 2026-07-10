@@ -24,6 +24,8 @@ bool HistoryManager::load_from_file() {
         add_history(line.c_str());
     }
 
+    append_offsets_[file_path_] = history_length;
+
     return true;
 }
 
