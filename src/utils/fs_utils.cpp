@@ -1,12 +1,15 @@
 #include "utils/fs_utils.hpp"
 #include <cstdlib>
 #include <cwctype>
+#include <fstream>
 #include <optional>
 #include <sstream>
 #include <string>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <vector>
+
+using fs_utils::WriteMode;
 
 std::vector<std::string> fs_utils::get_path_directories() {
     auto dirs = std::vector<std::string>();
@@ -47,4 +50,44 @@ std::optional<std::string> fs_utils::resolve_home_directory() {
         return std::nullopt;
     }
     return std::string(home);
+}
+
+std::vector<std::string> fs_utils::read_lines(const std::string& path) {
+    std::vector<std::string> lines;
+    std::ifstream file(path);
+
+    if (!file) {
+        return lines;
+    }
+
+    std::string line;
+
+    while (std::getline(file, line)) {
+        lines.push_back(line);
+    }
+
+    return lines;
+}
+
+bool fs_utils::write_str_vector_to_file(const std::string& path,
+                                        const std::vector<std::string>& lines,
+                                        WriteMode write_mode) {
+
+    auto open_mode = std::ios::out;
+
+    if (write_mode == WriteMode::Append) {
+        open_mode |= std::ios::app;
+    }
+
+    std::ofstream file(path, open_mode);
+
+    if (!file) {
+        return false;
+    }
+
+    for (const auto& line : lines) {
+        file << line << '\n';
+    }
+
+    file << '\n';
 }

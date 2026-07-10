@@ -13,6 +13,8 @@
 #include "utils/fs_utils.hpp"
 #include "utils/string_utils.hpp"
 
+using fs_utils::WriteMode;
+
 namespace {
 const std::vector<std::string> shell_builtins = {
     "cd", "complete", "echo", "exit", "history", "jobs", "pwd", "type",
@@ -148,6 +150,36 @@ int run_type(const std::vector<std::string>& args) {
     return 0;
 }
 
+int read_history(const std::string& path) {
+    auto lines = fs_utils::read_lines(path);
+
+    for (const auto& line : lines) {
+        add_history(line.c_str());
+    }
+
+    return 0;
+}
+
+int write_history(const std::string& path, WriteMode write_mode) {
+    std::vector<std::string> lines;
+
+    for (int i = history_base; i < history_base + history_length; ++i) {
+        HIST_ENTRY* entry = history_get(i);
+
+        if (entry != nullptr && entry->line != nullptr) {
+            lines.emplace_back(entry->line);
+        }
+    }
+
+    bool write_result = fs_utils::write_str_vector_to_file(path, lines, write_mode);
+
+    if (!write_result) {
+        return 1;
+    }
+
+    return 0;
+}
+
 int run_history(const std::vector<std::string>& args) {
     if (args.size() == 1) {
         for (int i = history_base; i < history_base + history_length; ++i) {
@@ -161,22 +193,39 @@ int run_history(const std::vector<std::string>& args) {
         return 0;
     }
 
-    auto possible_limit = string_utils::to_int(args[1]);
+    if (args.size() == 2) {
+        auto possible_limit = string_utils::to_int(args[1]);
 
-    if (!possible_limit.has_value() || possible_limit.value() < 1) {
-        std::println(stderr, "history: {}: positive numeric argument required", args[1]);
-        return 2;
+        if (!possible_limit.has_value() || possible_limit.value() < 1) {
+            std::println(stderr, "history: {}: positive numeric argument required", args[1]);
+            return 2;
+        }
+
+        int n = possible_limit.value();
+        int last = history_base + history_length - 1;
+        int first = std::max(history_base, last - n + 1);
+
+        for (int i = first; i <= last; ++i) {
+            HIST_ENTRY* entry = history_get(i);
+
+            if (entry != nullptr) {
+                std::println("{:5}  {}", i, entry->line);
+            }
+        }
+
+        return 0;
     }
 
-    int n = possible_limit.value();
-    int last = history_base + history_length - 1;
-    int first = std::max(history_base, last - n + 1);
+    if (args.size() >= 3) {
+        const auto& flag = args[1];
+        const auto& path = args[2];
+        if (flag == "-r") {
+            return read_history(path);
 
-    for (int i = first; i <= last; ++i) {
-        HIST_ENTRY* entry = history_get(i);
-
-        if (entry != nullptr) {
-            std::println("{:5}  {}", i, entry->line);
+        } else if (flag == "-w") {
+            return write_history(path, WriteMode::Trunc);
+        } else if (flag == "-a") {
+            return write_history(path, WriteMode::Append);
         }
     }
 
