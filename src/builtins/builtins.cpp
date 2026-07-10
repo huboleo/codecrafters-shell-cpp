@@ -113,7 +113,9 @@ int run_jobs(ShellContext& shell_context) {
 
 int run_exit(ShellContext& shell_context) {
     shell_context.should_exit = true;
-    // shell_context.history_manager.append_to_file(const std::string& path)
+    if (!shell_context.history_manager.append_to_file()) {
+        return 1;
+    }
     return 0;
 }
 
@@ -186,6 +188,8 @@ int builtins::run(const std::vector<std::string>& args, ShellContext& shell_cont
     } else {
         return 1;
     }
+
+    return 0;
 }
 
 const std::vector<std::string>& builtins::names() { return shell_builtins; }

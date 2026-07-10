@@ -7,14 +7,14 @@
 class HistoryManager {
 
   public:
-    int run(const std::vector<std::string>& args);
+    [[nodiscard]] int run(const std::vector<std::string>& args);
 
     void set_file_path(const std::string& path);
 
-    bool load_from_file();
-    bool write_to_file();
+    [[nodiscard]] bool load_from_file();
+    [[nodiscard]] bool write_to_file();
 
-    bool append_to_file();
+    [[nodiscard]] bool append_to_file();
 
   private:
     std::unordered_map<std::string, int> append_offsets_;

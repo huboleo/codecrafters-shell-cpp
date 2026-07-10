@@ -136,6 +136,12 @@ int main() {
     JobTable job_table;
     HistoryManager history_manager;
 
+    auto history_file_path = get_env_variable("HISTFILE");
+    if (history_file_path.has_value()) {
+        history_manager.set_file_path(history_file_path.value());
+        history_manager.load_from_file();
+    }
+
     ShellContext shell_context = {
         .job_table = job_table,
         .history_manager = history_manager,

@@ -11,6 +11,45 @@
 
 using fs_utils::WriteMode;
 
+void HistoryManager::set_file_path(const std::string& path) { file_path_ = path; }
+
+bool HistoryManager::load_from_file() {
+    if (file_path_.empty()) {
+        return false;
+    }
+
+    auto lines = fs_utils::read_lines(file_path_);
+
+    for (const auto& line : lines) {
+        add_history(line.c_str());
+    }
+
+    return true;
+}
+
+bool HistoryManager::append_to_file() {
+    if (file_path_.empty()) {
+        return false;
+    }
+
+    int offset = append_offsets_[file_path_];
+
+    int first = history_base + offset;
+    int last_exclusive = history_base + history_length;
+
+    auto lines = HistoryManager::collect_lines(first, last_exclusive);
+
+    bool write_result = fs_utils::write_str_vector_to_file(file_path_, lines, WriteMode::Append);
+
+    if (!write_result) {
+        return 1;
+    }
+
+    append_offsets_[file_path_] = history_length;
+
+    return 0;
+}
+
 int HistoryManager::print_all() const {
     for (int i = history_base; i < history_base + history_length; ++i) {
         HIST_ENTRY* entry = history_get(i);
