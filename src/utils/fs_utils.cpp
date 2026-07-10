@@ -90,4 +90,6 @@ bool fs_utils::write_str_vector_to_file(const std::string& path,
     }
 
     file << '\n';
+
+    return static_cast<bool>(file);
 }
