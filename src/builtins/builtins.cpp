@@ -175,7 +175,7 @@ int run_history(const std::vector<std::string>& args) {
         HIST_ENTRY* entry = history_get(i);
 
         if (entry != nullptr) {
-            std::println("{} {}", i, entry->line);
+            std::println("{:5}  {}", i, entry->line);
         }
     }
 
