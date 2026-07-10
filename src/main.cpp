@@ -1,5 +1,6 @@
 #include "builtins/builtins.hpp"
 #include "completion/completion.hpp"
+#include "history/history_manager.hpp"
 #include "jobs/job_table.hpp"
 #include "parsing/command_parser.hpp"
 #include "process/process.hpp"
@@ -123,9 +124,11 @@ int main() {
     rl_attempted_completion_function = complete_command;
 
     JobTable job_table;
+    HistoryManager history_manager;
 
     ShellContext shell_context = {
         .job_table = job_table,
+        .history_manager = history_manager,
         .registered_completions = registered_completions,
     };
 

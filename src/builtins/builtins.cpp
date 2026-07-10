@@ -150,88 +150,6 @@ int run_type(const std::vector<std::string>& args) {
     return 0;
 }
 
-int read_history(const std::string& path) {
-    auto lines = fs_utils::read_lines(path);
-
-    for (const auto& line : lines) {
-        add_history(line.c_str());
-    }
-
-    return 0;
-}
-
-int write_history(const std::string& path, WriteMode write_mode) {
-    std::vector<std::string> lines;
-
-    for (int i = history_base; i < history_base + history_length; ++i) {
-        HIST_ENTRY* entry = history_get(i);
-
-        if (entry != nullptr && entry->line != nullptr) {
-            lines.emplace_back(entry->line);
-        }
-    }
-
-    bool write_result = fs_utils::write_str_vector_to_file(path, lines, write_mode);
-
-    if (!write_result) {
-        return 1;
-    }
-
-    return 0;
-}
-
-int run_history(const std::vector<std::string>& args) {
-    if (args.size() == 1) {
-        for (int i = history_base; i < history_base + history_length; ++i) {
-            HIST_ENTRY* entry = history_get(i);
-
-            if (entry != nullptr) {
-                std::println("{} {}", i, entry->line);
-            }
-        }
-
-        return 0;
-    }
-
-    if (args.size() == 2) {
-        auto possible_limit = string_utils::to_int(args[1]);
-
-        if (!possible_limit.has_value() || possible_limit.value() < 1) {
-            std::println(stderr, "history: {}: positive numeric argument required", args[1]);
-            return 2;
-        }
-
-        int n = possible_limit.value();
-        int last = history_base + history_length - 1;
-        int first = std::max(history_base, last - n + 1);
-
-        for (int i = first; i <= last; ++i) {
-            HIST_ENTRY* entry = history_get(i);
-
-            if (entry != nullptr) {
-                std::println("{:5}  {}", i, entry->line);
-            }
-        }
-
-        return 0;
-    }
-
-    if (args.size() >= 3) {
-        const auto& flag = args[1];
-        const auto& path = args[2];
-        if (flag == "-r") {
-            return read_history(path);
-
-        } else if (flag == "-w") {
-            return write_history(path, WriteMode::Trunc);
-        } else if (flag == "-a") {
-            return write_history(path, WriteMode::Append);
-        }
-    }
-
-    return 0;
-}
-
 } // namespace
 
 bool builtins::is_builtin(const std::string& command) {
@@ -255,7 +173,7 @@ int builtins::run(const std::vector<std::string>& args, ShellContext& shell_cont
     } else if (command == "exit") {
         return run_exit(shell_context);
     } else if (command == "history") {
-        return run_history(args);
+        return shell_context.history_manager.run(args);
     } else if (command == "jobs") {
         return run_jobs(shell_context);
     } else if (command == "pwd") {

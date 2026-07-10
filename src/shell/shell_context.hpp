@@ -1,5 +1,6 @@
 #pragma once
 
+#include "history/history_manager.hpp"
 #include "jobs/job_table.hpp"
 #include <string>
 #include <utility>
@@ -7,6 +8,7 @@
 
 struct ShellContext {
     JobTable& job_table;
+    HistoryManager& history_manager;
     std::vector<std::pair<std::string, std::string>>& registered_completions;
     bool should_exit = false;
 };
