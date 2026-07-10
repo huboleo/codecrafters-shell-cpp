@@ -149,16 +149,30 @@ int run_type(const std::vector<std::string>& args) {
 }
 
 int run_history(const std::vector<std::string>& args) {
-    int length = history_length;
+    if (args.size() == 1) {
+        for (int i = history_base; i < history_base + history_length; ++i) {
+            HIST_ENTRY* entry = history_get(i);
 
-    if (args.size() == 2) {
-        auto second_arg_number = string_utils::to_int(args[1]);
-        if (second_arg_number.has_value() && second_arg_number.value() > 0) {
-            length = second_arg_number.value();
+            if (entry != nullptr) {
+                std::println("{} {}", i, entry->line);
+            }
         }
+
+        return 0;
     }
 
-    for (int i = history_base; i < history_base + length; ++i) {
+    auto possible_limit = string_utils::to_int(args[1]);
+
+    if (!possible_limit.has_value()) {
+        std::println(stderr, "history: {}: numeric argument required", args[1]);
+        return 2;
+    }
+
+    int n = possible_limit.value();
+    int last = history_base + history_length - 1;
+    int first = std::max(history_base, last - n + 1);
+
+    for (int i = last; i > first; --i) {
         HIST_ENTRY* entry = history_get(i);
 
         if (entry != nullptr) {
