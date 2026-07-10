@@ -14,7 +14,7 @@
 
 namespace {
 const std::vector<std::string> shell_builtins = {
-    "cd", "complete", "echo", "exit", "jobs", "pwd", "type",
+    "cd", "complete", "echo", "exit", "history", "jobs", "pwd", "type",
 };
 
 const std::unordered_set<std::string> shell_builtins_set(shell_builtins.begin(),
@@ -146,6 +146,8 @@ int run_type(const std::vector<std::string>& args) {
 
     return 0;
 }
+
+int run_history() { return 0; }
 } // namespace
 
 bool builtins::is_builtin(const std::string& command) {
@@ -168,6 +170,8 @@ int builtins::run(const std::vector<std::string>& args, ShellContext& shell_cont
         return run_echo(args);
     } else if (command == "exit") {
         return run_exit(shell_context);
+    } else if (command == "history") {
+        return run_history();
     } else if (command == "jobs") {
         return run_jobs(shell_context);
     } else if (command == "pwd") {
