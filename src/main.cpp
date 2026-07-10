@@ -24,6 +24,16 @@
 std::vector<std::pair<std::string, std::string>> registered_completions;
 std::optional<completion::CompleterContext> current_completer_context;
 
+std::optional<std::string> get_env_variable(const std::string& name) {
+    const char* value = std::getenv(name.c_str());
+
+    if (value == nullptr) {
+        return std::nullopt;
+    }
+
+    return std::string(value);
+}
+
 char* command_generator(const char* text, int state) {
     static size_t index;
     static std::string prefix;

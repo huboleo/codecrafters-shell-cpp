@@ -13,11 +13,9 @@
 #include "utils/fs_utils.hpp"
 #include "utils/string_utils.hpp"
 
-using fs_utils::WriteMode;
-
 namespace {
 const std::vector<std::string> shell_builtins = {
-    "cd", "complete", "echo", "exit", "history", "jobs", "pwd", "type",
+    "cd", "complete", "declare", "echo", "exit", "history", "jobs", "pwd", "type",
 };
 
 const std::unordered_set<std::string> shell_builtins_set(shell_builtins.begin(),
@@ -115,8 +113,11 @@ int run_jobs(ShellContext& shell_context) {
 
 int run_exit(ShellContext& shell_context) {
     shell_context.should_exit = true;
+    // shell_context.history_manager.append_to_file(const std::string& path)
     return 0;
 }
+
+int run_declare() { return 0; }
 
 int run_pwd() {
     std::println("{}", std::filesystem::current_path().string());
@@ -168,6 +169,8 @@ int builtins::run(const std::vector<std::string>& args, ShellContext& shell_cont
         return run_cd(args);
     } else if (command == "complete") {
         return run_complete(args, shell_context);
+    } else if (command == "declare") {
+
     } else if (command == "echo") {
         return run_echo(args);
     } else if (command == "exit") {

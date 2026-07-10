@@ -57,6 +57,8 @@ int HistoryManager::write_builtin(const std::string& path) {
         return 1;
     }
 
+    append_offsets_[path] = history_length;
+
     return 0;
 }
 
@@ -73,6 +75,8 @@ int HistoryManager::append_builtin(const std::string& path) {
     if (!write_result) {
         return 1;
     }
+
+    append_offsets_[path] = history_length;
 
     return 0;
 }
