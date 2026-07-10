@@ -169,10 +169,9 @@ int run_history(const std::vector<std::string>& args) {
     }
 
     int n = possible_limit.value();
-    int last = history_base + history_length - 1;
-    int first = std::max(history_base, last - n + 1);
+    int first = std::max(history_base, history_base + n - 1);
 
-    for (int i = last; i > first; --i) {
+    for (int i = first; i < history_length; i++) {
         HIST_ENTRY* entry = history_get(i);
 
         if (entry != nullptr) {
