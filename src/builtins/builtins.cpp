@@ -119,7 +119,15 @@ int run_exit(ShellContext& shell_context) {
     return 0;
 }
 
-int run_declare() { return 0; }
+int run_declare(const std::vector<std::string>& args) {
+    if (args.size() == 3) {
+        const auto& flag = args[1];
+        if (flag == "-p") {
+            std::println("declare: {}: not found", args[2]);
+        }
+    }
+    return 0;
+}
 
 int run_pwd() {
     std::println("{}", std::filesystem::current_path().string());

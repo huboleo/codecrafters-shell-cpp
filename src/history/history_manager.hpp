@@ -12,7 +12,6 @@ class HistoryManager {
     void set_file_path(const std::string& path);
 
     [[nodiscard]] bool load_from_file();
-    [[nodiscard]] bool write_to_file();
 
     [[nodiscard]] bool append_to_file();
 
