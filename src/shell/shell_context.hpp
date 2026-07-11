@@ -10,5 +10,6 @@ struct ShellContext {
     JobTable& job_table;
     HistoryManager& history_manager;
     std::vector<std::pair<std::string, std::string>>& registered_completions;
+    std::vector<std::pair<std::string, std::string>>& stored_variables;
     bool should_exit = false;
 };

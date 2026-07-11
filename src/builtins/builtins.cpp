@@ -119,13 +119,37 @@ int run_exit(ShellContext& shell_context) {
     return 0;
 }
 
-int run_declare(const std::vector<std::string>& args) {
+int run_declare(const std::vector<std::string>& args, ShellContext& shell_context) {
     if (args.size() == 3) {
         const auto& flag = args[1];
         if (flag == "-p") {
-            std::println("declare: {}: not found", args[2]);
+            const auto& variable_name = args[2];
+            auto it = std::find_if(
+                shell_context.stored_variables.begin(), shell_context.stored_variables.end(),
+                [&variable_name](const auto& pair) { return pair.first == variable_name; });
+            if (it != shell_context.stored_variables.end()) {
+                std::println("declare -- {}={}", it->first,
+                             string_utils::surround_with_double_quotes(it->second));
+            } else {
+                std::println("declare: {}: not found", args[2]);
+                return 1;
+            }
         }
     }
+
+    if (args.size() == 2) {
+        auto variable_and_value = string_utils::split_variable_name_and_value(args[1]);
+        if (!variable_and_value.has_value()) {
+            return 2;
+        }
+        const auto& variable_name = variable_and_value->first;
+        const auto& variable_value = variable_and_value->second;
+        std::erase_if(shell_context.stored_variables,
+                      [&variable_name](const auto& pair) { return pair.first == variable_name; });
+
+        shell_context.stored_variables.push_back({variable_name, variable_value});
+    }
+
     return 0;
 }
 
@@ -180,7 +204,7 @@ int builtins::run(const std::vector<std::string>& args, ShellContext& shell_cont
     } else if (command == "complete") {
         return run_complete(args, shell_context);
     } else if (command == "declare") {
-        return run_declare(args);
+        return run_declare(args, shell_context);
     } else if (command == "echo") {
         return run_echo(args);
     } else if (command == "exit") {

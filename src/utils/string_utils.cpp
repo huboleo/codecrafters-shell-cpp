@@ -5,6 +5,7 @@
 #include <optional>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 std::string string_utils::ltrim(const std::string& input) {
@@ -57,4 +58,25 @@ std::optional<int> string_utils::to_int(const std::string& input) {
     }
 
     return value;
+}
+
+std::string string_utils::surround_with_double_quotes(const std::string& input) {
+    return std::format("\"{}\"", input);
+}
+
+std::optional<std::pair<std::string, std::string>>
+string_utils::split_variable_name_and_value(const std::string& input) {
+
+    auto equal_sing_position = input.find_first_of('=');
+
+    if (equal_sing_position == std::string::npos) {
+        return std::nullopt;
+    }
+
+    std::pair<std::string, std::string> result;
+
+    result.first = input.substr(0, equal_sing_position);
+    result.second = input.substr(equal_sing_position + 1);
+
+    return result;
 }

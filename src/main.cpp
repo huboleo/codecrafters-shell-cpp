@@ -22,6 +22,7 @@
 #include <vector>
 
 std::vector<std::pair<std::string, std::string>> registered_completions;
+std::vector<std::pair<std::string, std::string>> stored_variables;
 std::optional<completion::CompleterContext> current_completer_context;
 
 std::optional<std::string> get_env_variable(const std::string& name) {
@@ -146,6 +147,7 @@ int main() {
         .job_table = job_table,
         .history_manager = history_manager,
         .registered_completions = registered_completions,
+        .stored_variables = stored_variables,
     };
 
     while (true) {
