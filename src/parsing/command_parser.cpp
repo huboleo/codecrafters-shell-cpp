@@ -238,10 +238,18 @@ command_parser::ParsedLine command_parser::parse_line(std::vector<std::string> p
     return result;
 }
 
-void command_parser::expand_variables(
-    std::vector<std::string>& args,
+std::vector<std::string> command_parser::expand_variables(
+    const std::vector<std::string>& args,
     const std::vector<std::pair<std::string, std::string>>& declared_variables) {
-    for (auto& arg : args) {
-        arg = expand_single_argument(arg, declared_variables);
+    std::vector<std::string> expanded_args;
+
+    for (const std::string& arg : args) {
+        std::string expanded = expand_single_argument(arg, declared_variables);
+
+        if (!expanded.empty()) {
+            expanded_args.push_back(std::move(expanded));
+        }
     }
+
+    return expanded_args;
 }

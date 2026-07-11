@@ -191,7 +191,8 @@ int main() {
         }
 
         for (auto& command : parsed_line.commands) {
-            command_parser::expand_variables(command.args, shell_context.stored_variables);
+            command.args =
+                command_parser::expand_variables(command.args, shell_context.stored_variables);
         }
 
         if (parsed_line.commands.size() > 1) {
