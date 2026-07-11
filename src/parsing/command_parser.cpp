@@ -1,11 +1,89 @@
 #include "parsing/command_parser.hpp"
 #include "redirection/redirection_types.hpp"
+#include "utils/string_utils.hpp"
+#include <algorithm>
 #include <cctype>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 using command_parser::ParseError;
+
+namespace {
+bool is_variable_start(char c) {
+    unsigned char uc = static_cast<unsigned char>(c);
+    return c == '_' || std::isalpha(uc);
+}
+
+bool is_variable_body(char c) {
+    unsigned char uc = static_cast<unsigned char>(c);
+    return c == '_' || std::isalnum(uc);
+}
+std::string
+expand_single_argument(const std::string& input,
+                       const std::vector<std::pair<std::string, std::string>>& declared_variables) {
+    std::string result;
+
+    for (size_t i{0}; i < input.size();) {
+        if (input[i] != '$') {
+            result.push_back(input[i]);
+            ++i;
+            continue;
+        }
+
+        if (i + 1 >= input.size()) {
+            result.push_back('$');
+            ++i;
+            continue;
+        }
+
+        std::string variable_name;
+        size_t next_position = i + 1;
+
+        if (input[i + 1] == '{') {
+            size_t name_start = i + 2;
+            size_t closing_brace = input.find('}', name_start);
+            if (closing_brace == std::string::npos) {
+                result.push_back('$');
+                ++i;
+                continue;
+            }
+            variable_name = input.substr(name_start, closing_brace - name_start);
+            next_position = closing_brace + 1;
+        } else {
+            size_t name_start = i + 1;
+
+            if (!is_variable_start(input[name_start])) {
+                result.push_back('$');
+                ++i;
+                continue;
+            }
+
+            size_t name_end = name_start + 1;
+
+            while (name_end < input.size() && is_variable_body(input[name_end])) {
+                ++name_end;
+            }
+
+            variable_name = input.substr(name_start, name_end - name_start);
+            next_position = name_end;
+        }
+
+        auto variable_it = std::find_if(
+            declared_variables.begin(), declared_variables.end(),
+            [&variable_name](const auto& pair) { return pair.first == variable_name; });
+
+        if (variable_it != declared_variables.end()) {
+            result += variable_it->second;
+        }
+
+        i = next_position;
+    }
+
+    return result;
+}
+} // namespace
 
 std::vector<std::string> command_parser::split_command(const std::string& input) {
     std::vector<std::string> parts;
@@ -158,4 +236,12 @@ command_parser::ParsedLine command_parser::parse_line(std::vector<std::string> p
 
     result.commands.push_back(command);
     return result;
+}
+
+void command_parser::expand_variables(
+    std::vector<std::string>& args,
+    const std::vector<std::pair<std::string, std::string>>& declared_variables) {
+    for (auto& arg : args) {
+        arg = expand_single_argument(arg, declared_variables);
+    }
 }

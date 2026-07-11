@@ -190,6 +190,10 @@ int main() {
             continue;
         }
 
+        for (auto& command : parsed_line.commands) {
+            command_parser::expand_variables(command.args, shell_context.stored_variables);
+        }
+
         if (parsed_line.commands.size() > 1) {
             auto result = process::run_pipeline(parsed_line.commands, shell_context,
                                                 parsed_line.should_run_in_background);
