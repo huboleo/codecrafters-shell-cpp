@@ -144,6 +144,10 @@ int run_declare(const std::vector<std::string>& args, ShellContext& shell_contex
         }
         const auto& variable_name = variable_and_value->first;
         const auto& variable_value = variable_and_value->second;
+        if (!string_utils::validate_variable_name_string(variable_name)) {
+            std::println("declare: `{}={}': not a valid identifier", variable_name, variable_value);
+            return 2;
+        }
         std::erase_if(shell_context.stored_variables,
                       [&variable_name](const auto& pair) { return pair.first == variable_name; });
 

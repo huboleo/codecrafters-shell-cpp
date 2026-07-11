@@ -66,6 +66,9 @@ std::string string_utils::surround_with_double_quotes(const std::string& input) 
 
 std::optional<std::pair<std::string, std::string>>
 string_utils::split_variable_name_and_value(const std::string& input) {
+    if (input.empty()) {
+        return std::nullopt;
+    }
 
     auto equal_sing_position = input.find_first_of('=');
 
@@ -79,4 +82,26 @@ string_utils::split_variable_name_and_value(const std::string& input) {
     result.second = input.substr(equal_sing_position + 1);
 
     return result;
+}
+
+bool string_utils::validate_variable_name_string(const std::string& input) {
+    if (input.empty()) {
+        return false;
+    }
+    for (size_t i{0}; i < input.size(); ++i) {
+        unsigned char character = static_cast<unsigned char>(input[i]);
+
+        if (i == 0) {
+            if (character != '_' && !std::isalpha(character)) {
+                return false;
+            }
+            continue;
+        }
+
+        if (character != '_' && !std::isalnum(character)) {
+            return false;
+        }
+    }
+
+    return true;
 }

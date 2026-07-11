@@ -21,4 +21,6 @@ split_variable_name_and_value(const std::string& input);
 
 std::optional<int> to_int(const std::string& input);
 
+bool validate_variable_name_string(const std::string& input);
+
 } // namespace string_utils
