@@ -180,7 +180,7 @@ int builtins::run(const std::vector<std::string>& args, ShellContext& shell_cont
     } else if (command == "complete") {
         return run_complete(args, shell_context);
     } else if (command == "declare") {
-
+        return run_declare(args);
     } else if (command == "echo") {
         return run_echo(args);
     } else if (command == "exit") {
