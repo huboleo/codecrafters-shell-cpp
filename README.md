@@ -18,4 +18,4 @@ If you are interested in building low-level projects I highly recommend to check
 - Offers tab completion for built-ins, executables, files, directories, and command-specific completion scripts.
 
 ## Testing
-Extensive test suite was provided by codecrafters for all 76 stages, all test passed.
+Extensive test suite was provided by codecrafters for all 76 stages, all tests passed.
