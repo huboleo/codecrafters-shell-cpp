@@ -1,34 +1,19 @@
-[![progress-banner](https://backend.codecrafters.io/progress/shell/0a01b626-6947-4594-950b-fad925b2b145)](https://app.codecrafters.io/users/huboleo?r=2qF)
+# POSIX-Compliant Shell
 
-This is a starting point for C++ solutions to the
-["Build Your Own Shell" Challenge](https://app.codecrafters.io/courses/shell/overview).
+A POSIX compliant shell written from scratch in C++23.
+Project was built following CodeCrafters Build your own Shell challenge available [here](https://app.codecrafters.io/courses/shell/overview)
+If you are interested in building low-level projects I highly recommend to check them out, they cool.
 
-In this challenge, you'll build your own POSIX compliant shell that's capable of
-interpreting shell commands, running external programs and builtin commands like
-cd, pwd, echo and more. Along the way, you'll learn about shell command parsing,
-REPLs, builtin commands, and more.
+## Features
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+- Runs external programs discovered through `PATH`.
+- Provides built-in commands: `cd`, `complete`, `declare`, `echo`, `exit`, `history`, `jobs`, `pwd`, and `type`.
+- Parses single and double quotes, escaped characters, and shell variables (`$NAME` and `${NAME}`).
+- Supports multi-command pipelines with `|`.
+- Redirects standard output and standard error with `>`, `>>`, `1>`, `1>>`, `2>`, and `2>>`.
+- Runs commands and pipelines in the background with `&`, including job tracking and completion notices.
+- Maintains interactive and file-backed command history through `HISTFILE`.
+- Offers tab completion for built-ins, executables, files, directories, and command-specific completion scripts.
 
-# Passing the first stage
-
-The entry point for your `shell` implementation is in `src/main.cpp`. Study and
-uncomment the relevant code, then run the command below to execute the tests on
-our servers:
-
-```sh
-codecrafters submit
-```
-
-Time to move on to the next stage!
-
-# Stage 2 & beyond
-
-Note: This section is for stages 2 and beyond.
-
-1. Ensure you have `cmake` installed locally
-1. Run `./your_program.sh` to run your program, which is implemented in
-   `src/main.cpp`.
-1. Run `codecrafters submit` to submit your solution to CodeCrafters. Test
-   output will be streamed to your terminal.
+## Testing
+Extensive test suite was provided by codecrafters for all 76 stages, all test passed.
