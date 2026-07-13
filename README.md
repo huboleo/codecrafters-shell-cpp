@@ -1,7 +1,9 @@
 # POSIX-Compliant Shell
 
 A POSIX compliant shell written from scratch in C++23.
-Project was built following CodeCrafters Build your own Shell challenge available [here](https://app.codecrafters.io/courses/shell/overview)
+
+Project was built following CodeCrafters Build your own Shell challenge available [here](https://app.codecrafters.io/courses/shell/overview).
+
 If you are interested in building low-level projects I highly recommend to check them out, they cool.
 
 ## Features
